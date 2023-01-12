@@ -1,10 +1,23 @@
 window.onload = () => {
+  const categoryElement = document.getElementById("category");
+  const subcategoryElement = document.getElementById("subcategory");
+  const productElement = document.getElementById("product");
+  const priceElement = document.getElementById("price");
+  const submitButtonElement = document.getElementById("submit");
+  // (A) GET THE PARAMETERS
+  var params = new URLSearchParams(window.location.search),
+      first = params.get("first"),
+      second = JSON.parse(params.get("second"));
+
+  // (B) IT WORKS!
+  console.log(first);  // Foo Bar
+  console.log(second); // ["Hello", "World"]
   const categoriesAjax = $.ajax({
     url: "getCategories.php",
     method: "GET",
     dataType: "json",
     success: function (data) {
-      console.log(data);
+      // console.log(data);
     },
   });
 
@@ -15,16 +28,14 @@ window.onload = () => {
       let option = document.createElement("option");
       option.value = cat.category_id;
       option.text = cat.name;
-      document.getElementById("category").appendChild(option);
+      categoryElement.appendChild(option);
     });
 
-    document
-      .getElementById("category")
-      .addEventListener("change", onChangeCategories);
+    categoryElement.addEventListener("change", onChangeCategories);
 
     function onChangeCategories() {
-      document.getElementById("subcategory").removeAttribute("disabled");
-      console.log(subcategory.value);
+      subcategoryElement.removeAttribute("disabled");
+      // console.log(subcategory.value);
 
       const subcategoriesAjax = $.ajax({
         url: "getSubcategories.php",
@@ -32,9 +43,12 @@ window.onload = () => {
         dataType: "json",
         data: { category: category.value },
         success: function (data) {
-          console.log(data);
+          // console.log(data);
         },
       });
+
+      empty(subcategoryElement);
+      empty(productElement);
 
       subcategoriesAjax.done(getSubcategories);
 
@@ -43,17 +57,15 @@ window.onload = () => {
           let option = document.createElement("option");
           option.value = sub.subcategory_id;
           option.text = sub.name;
-          document.getElementById("subcategory").appendChild(option);
+          subcategoryElement.appendChild(option);
         });
       }
 
-      document
-        .getElementById("subcategory")
-        .addEventListener("change", onChangeSubCategories);
+      subcategoryElement.addEventListener("change", onChangeSubCategories);
 
       function onChangeSubCategories() {
-        document.getElementById("product").removeAttribute("disabled");
-        console.log(product.value);
+        productElement.removeAttribute("disabled");
+        // console.log(product.value);
 
         const productAjax = $.ajax({
           url: "getProducts.php",
@@ -61,9 +73,11 @@ window.onload = () => {
           dataType: "json",
           data: { subcategory: subcategory.value },
           success: function (data) {
-            console.log(data);
+            // console.log(data);
           },
         });
+
+        empty(productElement);
 
         productAjax.done(getProducts);
 
@@ -72,7 +86,7 @@ window.onload = () => {
             let option = document.createElement("option");
             option.value = product.product_id;
             option.text = product.product_name;
-            document.getElementById("product").appendChild(option);
+            productElement.appendChild(option);
           });
         }
       }
@@ -100,3 +114,9 @@ window.onload = () => {
     // }
   }
 };
+
+function empty(element) {
+  while (element.firstElementChild) {
+    element.firstElementChild.remove();
+  }
+}

@@ -78,26 +78,7 @@ window.onload = function () {
       method: "GET",
       dataType: "json",
       success: function (data) {
-        // console.log(data);
-      },
-      error: function (xhr, exception) {
-        var msg = "";
-        if (xhr.status === 0) {
-          msg = "Not connect.\n Verify Network." + xhr.responseText;
-        } else if (xhr.status == 404) {
-          msg = "Requested page not found. [404]" + xhr.responseText;
-        } else if (xhr.status == 500) {
-          msg = "Internal Server Error [500]." + xhr.responseText;
-        } else if (exception === "parsererror") {
-          msg = "Requested JSON parse failed.";
-        } else if (exception === "timeout") {
-          msg = "Time out error." + xhr.responseText;
-        } else if (exception === "abort") {
-          msg = "Ajax request aborted.";
-        } else {
-          msg = "Error:" + xhr.status + " " + xhr.responseText;
-        }
-        console.log(msg);
+        console.log(data);
       },
     });
 
@@ -105,23 +86,39 @@ window.onload = function () {
 
     function markers(res) {
       res.map((store) => {
-        marker = L.marker([store.lat, store.lon], {icon: orange});
-
-        var container = $("<div />");
-        container.html(`<p for="store_name">Name: ${store.store_name}</p>
-        <p for="price">price: ${store.price}€</p>
-        <p for="product">product: ${store.product}</p>
-        <button class="submit">Αξιολόγηση</button>`);
-
+        const container = $("<div />");
+        marker = L.marker([store.lat, store.lon], { icon: orange });
+        stores.addLayer(marker);
+        if (
+          getDistance(
+            position.coords.latitude,
+            position.coords.longitude,
+            store.lat,
+            store.lon
+          ) <= 5000000
+        ) {
+          container.html(
+            `<lable class="form-label">Name: ${store.store_name}</lable><br><br><button class="btn btn-primary btn-sm submit">Προβολή προσφοράς</button><br><br><button class="btn btn-primary btn-sm katiallo">Αξιολόγηση προσφοράς</button><br><br><button class="btn btn-primary btn-sm katiallo2">Προσθήκη προσφοράς</button>`
+          );
+        } else {
+          container.html(
+            `<lable class="form-label">Name: ${store.store_name}</lable><br><br><button class="btn btn-primary btn-sm submit">Προβολή προσφοράς</button>`
+          );
+        }
         container.on("click", ".submit", function () {
-          alert('komple bro')
+          console.log("eee");
         });
-
+        container.on("click", ".katiallo", function () {
+          console.log("ti eee more");
+        });
+        container.on("click", ".katiallo2", function () {
+          console.log("ε καλα αντε γαμησου");
+        });
         marker.bindPopup(container[0]);
         stores.addLayer(marker);
-      })
+      });
     }
-  }// telos markers prosforon
+  } // telos markers prosforon
 
   // arxi searchbar
   const storesAjax = $.ajax({
@@ -138,11 +135,11 @@ window.onload = function () {
   function searchResult(res) {
     // kouti anazitisis
     storeNames = [];
-    
-    res.map((store) =>{
+
+    res.map((store) => {
       storeNames.push(store.store_name);
-    })
-    console.log(storeNames);
+    });
+    // console.log(storeNames);
     let unique = [...new Set(storeNames)];
     let searchbox = L.control
       .searchbox({
@@ -160,7 +157,7 @@ window.onload = function () {
       distance: 100,
       minMatchCharLength: 1,
     });
-    let option = ''
+    let option = "";
     searchbox.onInput("keyup", function (e) {
       if (e.keyCode == 13) {
         search();
@@ -168,9 +165,8 @@ window.onload = function () {
         let value = searchbox.getValue();
         if (value != "") {
           results = fuse.search(value);
-          option = results.map((res) => res.refIndex)
+          option = results.map((res) => res.refIndex);
           searchbox.setItems(results.map((res) => res.item).slice(0, 5));
-          console.log(option);
         } else {
           searchbox.clearItems();
         }
@@ -181,7 +177,7 @@ window.onload = function () {
 
     function search() {
       let value = searchbox.getValue();
-      
+
       console.log(value);
 
       // pop = round(info[0].populartimes);
@@ -250,3 +246,27 @@ window.onload = function () {
     return deg * (Math.PI / 180);
   }
 };
+
+// container.html(`<p for="store_name">Name: ${store.store_name}</p>
+// <p for="price">price: ${store.price}€</p>
+// <p for="product">product: ${store.product}</p>
+// <button class="submit">Αξιολόγηση</button>`);
+// // (A) VARIABLES TO PASS
+// var first = "Foo Bar",
+//   second = ["Hello", "World"];
+
+// // (B) URL PARAMETERS
+// var params = new URLSearchParams();
+// params.append("first", first);
+// params.append("second", JSON.stringify(second));
+
+// // (C) GO!
+// window.open(url);
+// container.on("click", ".submit", function () {
+//   var url = "declare.php?" + params.toString();
+//   location.href = url;
+//   // alert("komple bro");
+// });
+
+// marker.bindPopup(container[0]);
+// stores.addLayer(marker);
