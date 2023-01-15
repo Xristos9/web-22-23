@@ -1,104 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="style.css" />
-    <title>Declaration</title>
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
-      crossorigin="anonymous"
-    ></script>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3"
-      crossorigin="anonymous"
-    />
-    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  </head>
-  <body>
-    <!-- Navbar -->
-    <?php include "navbar.php"; ?>
-    <br /><br />
 
-    <div class="filler">
-      <!-- Showcase -->
-      <section
-        class="bg-primary text-light p-5 p-lg-0 pt-lg-5 text-center text-sm-start"
-      >
-        <div class="container">
-          <div class="d-sm-flex align-items-center justify-content-between">
-            <div>
-              <label class="form-label"
-                >Select Category</label
-              >
-              <select
-                id="category"
-                class="form-select"
-                data-live-search="true"
-                data-container="body"
-              >
-                <option>Select Category</option>
+<head>
+  <title>Declaration</title>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="style.css" />
+  <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css'>
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.14.0-beta2/css/bootstrap-select.min.css'>
+  <script src='https://code.jquery.com/jquery-3.6.0.min.js'></script>
+  <script src='https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.14.0-beta2/js/bootstrap-select.min.js'></script>
+</head>
+
+<body class="bg-light">
+  <!-- Navbar -->
+  <?php include "navbar.php"; ?>
+  <br /><br /><br />
+
+  <div class="filler">
+    <!-- Start Header form -->
+    <section class="bg-primary text-light p-5 p-lg-3  text-sm-start">
+      <h2 class='text-center'>Submit an offer</h2>
+    </section>
+    <!-- End Header form -->
+    <div class="container bg-light pt-5">
+      <!-- Start Card -->
+      <div class="card">
+        <!-- Start Card Body -->
+        <div class="card-body">
+          <!-- Start Form -->
+          <form id="discountForm" action="#" method="" class="needs-validation" novalidate autocomplete="off">
+            <div class="form-group pt-3">
+              <label for="inputCategory">Category</label>
+              <select class="form-select mt-1" id="inputCategory" name="category" required>
+                <option value="" disabled selected>Select Category</option>
               </select>
-              <br />
-            </div>
-            <div>
-              <label class="form-label"
-                >Select Subcategory</label
-              >
-              <select
-                id="subcategory"
-                class="form-select"
-                data-live-search="true"
-                data-container="body"
-                disabled
-              >
-                <option>Select Subcategory</option>
-              </select>
-              <br />
-            </div>
-            <div>
-              <label class="form-label"
-                >Select Product</label
-              >
-              <select
-                id="product"
-                class="form-select"
-                data-live-search="true"
-                data-container="body"
-                disabled
-              >
-                <option>Select Product</option>
-              </select>
-              <br />
-            </div>
-            <div>
-              <label class="form-label"
-                >Enter Price</label
-              >
-              <input class="form-control" type="text" id="price" required />
-              <br />
             </div>
 
-            <button
-              type="button"
-              id="submit"
-              class="btn btn-dark"
-            >
-              Submit
-            </button>
-          </div>
-          <br />
+            <div class="form-group pt-3">
+              <label for="inputSubcategory">Subcategory</label>
+              <select class="form-select mt-1" id="inputSubcategory" name="subcategory" disabled required>
+                <option value="" disabled selected>Select Sugcategory</option>
+              </select>
+            </div>
+
+            <div class="form-group pt-3">
+              <label for="inputProduct">Product</label>
+              <select class="form-select mt-1" id="inputProduct" name="product" disabled required>
+                <option value="" disabled selected>Select Product</option>
+              </select>
+            </div>
+
+            <div class="form-group pt-3">
+              <label for="inputPrice">Price</label>
+              <input type="number" class="form-control" id="inputPrice" name="price" placeholder="Enter Price" required />
+            </div>
+            <div class="form-group pt-5">
+              <button class="btn btn-primary btn-block col-lg-2" type="submit">Submit</button>
+            </div>
+          </form>
+          <!-- End Form -->
         </div>
-      </section>
+        <!-- End Card Body -->
+      </div>
+      <!-- End Card -->
     </div>
+  </div>
 
-    <!-- Footer -->
-    <?php include "footer.php";?> 
-    <script src="declare.js"></script>
-  </body>
+  <!-- Footer -->
+  <?php include "footer.php"; ?>
+  <script src="declare.js"></script>
+</body>
+
 </html>

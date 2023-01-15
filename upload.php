@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -11,6 +12,7 @@
 	<link rel="stylesheet" type="text/css" href="style.css">
 	<title>Upload</title>
 </head>
+
 <body>
 	<!-- Navbar -->
 	<?php include "adminNavbar.php"; ?>
@@ -21,36 +23,37 @@
 			<div class="container">
 				<div class="d-sm-flex align-items-center justify-content-between">
 					<div>
-					<label class="form-label">Stores</label>
-					<div class="input-group">
-						<input type="file" class="form-control" id="storesUpload" aria-label="Upload" accept=".json" onchange="storesUpload(this)">
-						<button class="btn btn-dark" type="button" id="storesUploadButton">Submit</button>
-					</div><br>
+						<label class="form-label">Stores</label>
+						<div class="input-group">
+							<input type="file" class="form-control" id="storesUpload" aria-label="Upload" accept=".json" onchange="storesUpload(this)">
+							<button class="btn btn-dark" type="button" id="storesUploadButton">Submit</button>
+						</div><br>
 					</div>
 				</div>
 				<div class="d-sm-flex align-items-center justify-content-between">
 					<div><br>
-					<label class="form-label">Products and Categories</label>
-					<div class="input-group">
-						<input type="file" class="form-control" id="categoriesProductsUpload" aria-label="Upload" accept=".json" onchange="categoriesProductsUpload(this)">
-						<button class="btn btn-dark" type="button" id="categoriesProductsUploadButton">Submit</button>
-					</div><br>
+						<label class="form-label">Products and Categories</label>
+						<div class="input-group">
+							<input type="file" class="form-control" id="categoriesProductsUpload" aria-label="Upload" accept=".json" onchange="categoriesProductsUpload(this)">
+							<button class="btn btn-dark" type="button" id="categoriesProductsUploadButton">Submit</button>
+						</div><br>
 					</div>
 				</div>
 				<div class="d-sm-flex align-items-center justify-content-between">
 					<div><br>
-					<label class="form-label">Prices</label>
-					<div class="input-group">
-						<input type="file" class="form-control" id="pricesUpload" aria-label="Upload" accept=".json" onchange="pricesUpload(this)">
-						<button class="btn btn-dark" type="button" id="pricesUploadButton">Submit</button>
-					</div><br>
+						<label class="form-label">Prices</label>
+						<div class="input-group">
+							<input type="file" class="form-control" id="pricesUpload" aria-label="Upload" accept=".json" onchange="pricesUpload(this)">
+							<button class="btn btn-dark" type="button" id="pricesUploadButton">Submit</button>
+						</div><br>
 					</div>
 				</div>
 			</div>
 		</section>
 	</div>
-		<!-- Footer -->
-	<?php include "footer.php";?>
+	<!-- Footer -->
+	<?php include "footer.php"; ?>
 	<script src="upload.js"></script>
 </body>
+
 </html>

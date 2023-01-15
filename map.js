@@ -1,4 +1,8 @@
 window.onload = function () {
+  const storeElement = $("#storeSelect");
+  const categoryElement = $("#categorySelect");
+  const storeButton = $("#searchStore");
+  const categoryButton = $("#searchCategory");
   // topiki wra
   let currentdate = new Date();
   let day = currentdate.toLocaleString("en-us", {
@@ -20,6 +24,8 @@ window.onload = function () {
     layers: [baseLayer],
     zoomControl: false,
   });
+  var stores = new L.layerGroup();
+  map.addLayer(stores);
   var stores = new L.layerGroup();
   map.addLayer(stores);
 
@@ -98,21 +104,25 @@ window.onload = function () {
           ) <= 5000000
         ) {
           container.html(
-            `<lable class="form-label">Name: ${store.store_name}</lable><br><br><button class="btn btn-primary btn-sm submit">Προβολή προσφοράς</button><br><br><button class="btn btn-primary btn-sm katiallo">Αξιολόγηση προσφοράς</button><br><br><button class="btn btn-primary btn-sm katiallo2">Προσθήκη προσφοράς</button>`
+            `<lable class="form-label">Name: ${store.store_name}</lable><br><br><button class="btn btn-primary btn-sm showOffer">Προβολή προσφορών</button><br><br><button class="btn btn-primary btn-sm submitOffer">Προσθήκη προσφοράς</button>`
           );
         } else {
           container.html(
             `<lable class="form-label">Name: ${store.store_name}</lable><br><br><button class="btn btn-primary btn-sm submit">Προβολή προσφοράς</button>`
           );
         }
-        container.on("click", ".submit", function () {
+        container.on("click", ".showOffer", function () {
           console.log("eee");
+          console.log(store);
         });
-        container.on("click", ".katiallo", function () {
-          console.log("ti eee more");
-        });
-        container.on("click", ".katiallo2", function () {
-          console.log("ε καλα αντε γαμησου");
+        container.on("click", ".submitOffer", function () {
+          // URL PARAMETERS
+          let params = new URLSearchParams();
+          params.append("store", store.id);
+
+          let url = "declare.php?" + params.toString();
+          location.href = url;
+          window.open(url);
         });
         marker.bindPopup(container[0]);
         stores.addLayer(marker);
@@ -120,153 +130,134 @@ window.onload = function () {
     }
   } // telos markers prosforon
 
-  // arxi searchbar
+  // arxi store dropdown
   const storesAjax = $.ajax({
     url: "getStoreNames.php",
-    method: "GET",
+    method: "POST",
     dataType: "json",
     success: function (data) {
-      // console.log(data)
+      console.log(data);
+      // createOptions()
     },
   });
 
-  storesAjax.done(searchResult);
+  storesAjax.done(storeResults);
 
-  function searchResult(res) {
-    // kouti anazitisis
-    storeNames = [];
-
-    res.map((store) => {
-      storeNames.push(store.store_name);
+  function storeResults(result) {
+    storeElement.append(new Option("Select Store", ""));
+    result.map((store) => {
+      storeElement.append(new Option(store.store_name, store.store_id));
     });
-    // console.log(storeNames);
-    let unique = [...new Set(storeNames)];
-    let searchbox = L.control
-      .searchbox({
-        position: "topright",
-        expand: "left",
-        width: "450px",
-        autocompleteFeatures: ["setValueOnClick"],
-      })
-      .addTo(map);
+    storeElement.selectpicker("refresh");
 
-    let fuse = new Fuse(unique, {
-      shouldSort: true,
-      threshold: 0.6,
-      location: 0,
-      distance: 100,
-      minMatchCharLength: 1,
-    });
-    let option = "";
-    searchbox.onInput("keyup", function (e) {
-      if (e.keyCode == 13) {
-        search();
+    storeButton.click(function () {
+      if (storeElement.val() === "") {
+        alert("Please select");
       } else {
-        let value = searchbox.getValue();
-        if (value != "") {
-          results = fuse.search(value);
-          option = results.map((res) => res.refIndex);
-          searchbox.setItems(results.map((res) => res.item).slice(0, 5));
-        } else {
-          searchbox.clearItems();
-        }
+        let selectedStore = result.find(
+          (store) => store.store_id === storeElement.val()
+        );
+        let container = $("<div />");
+        marker = L.marker([selectedStore.lat, selectedStore.lon], {
+          icon: blue,
+        });
+        stores.addLayer(marker);
+        container.html(
+          `<lable class="form-label">Name: ${selectedStore.store_name}</lable><br><br><button class="btn btn-primary btn-sm submitOffer">Προσθήκη προσφοράς</button>`
+        );
+        marker.bindPopup(container[0]);
+        stores.addLayer(marker);
+        map.setView([selectedStore.lat, selectedStore.lon], 18);
       }
     });
+  } // telos store dropdown
 
-    searchbox.onButton("click", search);
+  // arxi offer dropdown
+  const categoryAjax = $.ajax({
+    url: "getCategories.php",
+    method: "POST",
+    dataType: "json",
+    success: function (data) {
+      console.log(data);
+    },
+  });
 
-    function search() {
-      let value = searchbox.getValue();
+  categoryAjax.done(categoryResults);
 
-      console.log(value);
+  function categoryResults(result) {
+    categoryElement.append(new Option("Select Category", ""));
+    result.map((category) => {
+      categoryElement.append(new Option(category.name, category.category_id));
+    });
+    categoryElement.selectpicker("refresh");
+    categoryButton.click(function () {
+      console.log(categoryElement.val());
+      if (categoryElement.val() === "") {
+        alert("Please select");
+      }
+      const storeOfferAjax = $.ajax({
+        url: "getStoreOffer.php",
+        method: "POST",
+        dataType: "json",
+        data: { category: categoryElement.val() },
+        success: function (data) {
+          console.log(data);
+        },
+      });
 
-      // pop = round(info[0].populartimes);
+      storeOfferAjax.done(categoryOffers);
 
-      // if (pop >= 0 && pop <= 32) {
-      //   let marker = L.marker(L.latLng(info[0].lat, info[0].lng), {
-      //     icon: icon1,
-      //   }).addTo(map);
-      // } else if (pop >= 33 && pop <= 65) {
-      //   let marker = L.marker(L.latLng(info[0].lat, info[0].lng), {
-      //     icon: icon2,
-      //   }).addTo(map);
-      // } else if (pop >= 66) {
-      //   let marker = L.marker(L.latLng(info[0].lat, info[0].lng), {
-      //     icon: icon3,
-      //   }).addTo(map);
-      // } else {
-      //   let marker = L.marker(L.latLng(info[0].lat, info[0].lng)).addTo(map);
-      // }
+      function categoryOffers(result) {
+        // map.removeLayer(stores);
+        var stores2 = new L.layerGroup();
+        // map.addLayer(stores2);
+        console.log(stores._layers);
+        // console.log(result);
+        result.map((offer) => {
+          // console.log(offer);
+          let container = $("<div />");
+          marker = L.marker([offer.lat, offer.lon], { icon: orange });
+          stores2.addLayer(marker);
+          container.html(
+            `<lable class="form-label">Name: ${offer.store_name}</lable><br><br><button class="btn btn-primary btn-sm showOffer">Προβολή προσφορών</button><br><br><button class="btn btn-primary btn-sm submitOffer">Προσθήκη προσφοράς</button>`
+          );
+          container.on("click", ".showOffer", function () {
+            console.log("eee");
+            console.log(offer);
+          });
+          container.on("click", ".submitOffer", function () {
+            // URL PARAMETERS
+            let params = new URLSearchParams();
+            params.append("store", offer.store_id);
 
-      // marker.bindPopup(
-      //   "Name: '" +
-      //     info[0].name +
-      //     "'<br> Address: " +
-      //     info[0].address +
-      //     "<br>Traffic: " +
-      //     Math.round(round(info[0].populartimes))
-      // );
-      // map.setView([info[0].lat, info[0].lng], 20);
-
-      // function round(data) {
-      //   let estimate = [];
-      //   estimate.push(
-      //     parseInt(data[currentdate.getHours()]),
-      //     parseInt(data[currentdate.getHours() + 1]),
-      //     parseInt(data[currentdate.getHours() + 2])
-      //   );
-      //   return estimate.reduce((a, b) => a + b) / 3;
-      // }
-
-      // setTimeout(function () {
-      //   searchbox.hide();
-      //   searchbox.clear();
-      // }, 600);
-    }
-  }
-  //telos searchbar
-
-  // euresi apostasis
-  function getDistance(lat1, lon1, lat2, lon2) {
-    var R = 6371; // Radius of the earth in km
-    var dLat = deg2rad(lat2 - lat1); // deg2rad below
-    var dLon = deg2rad(lon2 - lon1);
-    var a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(deg2rad(lat1)) *
-        Math.cos(deg2rad(lat2)) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    var d = R * c; // Distance in km
-    return parseInt(d * 1000);
-  }
-
-  function deg2rad(deg) {
-    return deg * (Math.PI / 180);
-  }
+            let url = "declare.php?" + params.toString();
+            location.href = url;
+            window.open(url);
+          });
+          marker.bindPopup(container[0]);
+          stores2.addLayer(marker);
+        });
+      }
+    });
+  } // telos offer dropdown
 };
 
-// container.html(`<p for="store_name">Name: ${store.store_name}</p>
-// <p for="price">price: ${store.price}€</p>
-// <p for="product">product: ${store.product}</p>
-// <button class="submit">Αξιολόγηση</button>`);
-// // (A) VARIABLES TO PASS
-// var first = "Foo Bar",
-//   second = ["Hello", "World"];
+// euresi apostasis
+function getDistance(lat1, lon1, lat2, lon2) {
+  var R = 6371; // Radius of the earth in km
+  var dLat = deg2rad(lat2 - lat1); // deg2rad below
+  var dLon = deg2rad(lon2 - lon1);
+  var a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(deg2rad(lat1)) *
+      Math.cos(deg2rad(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  var d = R * c; // Distance in km
+  return parseInt(d * 1000);
+}
 
-// // (B) URL PARAMETERS
-// var params = new URLSearchParams();
-// params.append("first", first);
-// params.append("second", JSON.stringify(second));
-
-// // (C) GO!
-// window.open(url);
-// container.on("click", ".submit", function () {
-//   var url = "declare.php?" + params.toString();
-//   location.href = url;
-//   // alert("komple bro");
-// });
-
-// marker.bindPopup(container[0]);
-// stores.addLayer(marker);
+function deg2rad(deg) {
+  return deg * (Math.PI / 180);
+}
