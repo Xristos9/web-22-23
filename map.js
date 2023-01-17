@@ -3,11 +3,12 @@ window.onload = function () {
   const categoryElement = $("#categorySelect");
   const storeButton = $("#searchStore");
   const categoryButton = $("#searchCategory");
-  // topiki wra
-  let currentdate = new Date();
-  let day = currentdate.toLocaleString("en-us", {
-    weekday: "long",
-  });
+
+  function resetMarkers(label) {
+    map.removeLayer(label);
+    lable = new L.layerGroup();
+    map.addLayer(label);
+  }
 
   // eisagwgi xarti
   var baseLayer = L.tileLayer(
@@ -24,10 +25,10 @@ window.onload = function () {
     layers: [baseLayer],
     zoomControl: false,
   });
-  var stores = new L.layerGroup();
+  let stores = new L.layerGroup();
   map.addLayer(stores);
-  var stores = new L.layerGroup();
-  map.addLayer(stores);
+  const userMarker = new L.layerGroup();
+  map.addLayer(userMarker);
 
   // HTML Geolocation API
   if (navigator.geolocation) {
@@ -60,12 +61,12 @@ window.onload = function () {
   const blue = L.icon({
     iconUrl: "icons/blue.png",
     iconSize: [38, 38],
-    iconAnchor: [20, 0],
+    // iconAnchor: [20, 0],
   });
   const orange = L.icon({
     iconUrl: "icons/orange.png",
     iconSize: [38, 38],
-    iconAnchor: [20, 0],
+    // iconAnchor: [20, 0],
   });
 
   function showMarker(position) {
@@ -75,7 +76,7 @@ window.onload = function () {
       position.coords.longitude,
     ]);
     ClLock.bindPopup("You are here");
-    stores.addLayer(ClLock);
+    userMarker.addLayer(ClLock);
     map.setView([position.coords.latitude, position.coords.longitude], 13);
 
     // emfanisi katastimaton me prosfores
@@ -112,8 +113,11 @@ window.onload = function () {
           );
         }
         container.on("click", ".showOffer", function () {
-          console.log("eee");
-          console.log(store);
+          let params = new URLSearchParams();
+          params.append("discount_id", store.discount_id);
+          let url = "discountsPage.php?" + params.toString();
+          location.href = url;
+          window.open(url);
         });
         container.on("click", ".submitOffer", function () {
           // URL PARAMETERS
@@ -136,7 +140,7 @@ window.onload = function () {
     method: "POST",
     dataType: "json",
     success: function (data) {
-      console.log(data);
+      // console.log(data);
       // createOptions()
     },
   });
@@ -178,7 +182,7 @@ window.onload = function () {
     method: "POST",
     dataType: "json",
     success: function (data) {
-      console.log(data);
+      // console.log(data);
     },
   });
 
@@ -191,7 +195,7 @@ window.onload = function () {
     });
     categoryElement.selectpicker("refresh");
     categoryButton.click(function () {
-      console.log(categoryElement.val());
+      // console.log(categoryElement.val());
       if (categoryElement.val() === "") {
         alert("Please select");
       }
@@ -199,31 +203,31 @@ window.onload = function () {
         url: "getStoreOffer.php",
         method: "POST",
         dataType: "json",
-        data: { category: categoryElement.val() },
+        data: { input: categoryElement.val() },
         success: function (data) {
-          console.log(data);
+          // console.log(data);
         },
       });
 
       storeOfferAjax.done(categoryOffers);
 
       function categoryOffers(result) {
-        // map.removeLayer(stores);
-        var stores2 = new L.layerGroup();
-        // map.addLayer(stores2);
-        console.log(stores._layers);
-        // console.log(result);
+        resetMarkers(stores);
+
         result.map((offer) => {
           // console.log(offer);
           let container = $("<div />");
           marker = L.marker([offer.lat, offer.lon], { icon: orange });
-          stores2.addLayer(marker);
+          stores.addLayer(marker);
           container.html(
             `<lable class="form-label">Name: ${offer.store_name}</lable><br><br><button class="btn btn-primary btn-sm showOffer">Προβολή προσφορών</button><br><br><button class="btn btn-primary btn-sm submitOffer">Προσθήκη προσφοράς</button>`
           );
           container.on("click", ".showOffer", function () {
-            console.log("eee");
-            console.log(offer);
+            let params = new URLSearchParams();
+            params.append("discount_id", offer.discount_id);
+            let url = "discountsPage.php?" + params.toString();
+            location.href = url;
+            window.open(url);
           });
           container.on("click", ".submitOffer", function () {
             // URL PARAMETERS
@@ -235,7 +239,7 @@ window.onload = function () {
             window.open(url);
           });
           marker.bindPopup(container[0]);
-          stores2.addLayer(marker);
+          stores.addLayer(marker);
         });
       }
     });

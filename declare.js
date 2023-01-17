@@ -3,6 +3,8 @@
   window.addEventListener(
     "load",
     function () {
+      const currentdate = new Date().toISOString().slice(0, 10);
+
       const categoryElement = document.getElementById("inputCategory");
       const subcategoryElement = document.getElementById("inputSubcategory");
       const productElement = document.getElementById("inputProduct");
@@ -11,9 +13,9 @@
       const forms = document.getElementsByClassName("needs-validation");
       const params = new URLSearchParams(window.location.search),
         store = params.get("store");
-      console.log(store);
+      // console.log(store);
       $.post("getCategories.php").done(function (data) {
-        console.log(data);
+        // console.log(data);
         getCategories(data);
       }, "json");
 
@@ -30,11 +32,11 @@
         function onChangeCategories() {
           subcategoryElement.removeAttribute("disabled");
 
-          console.log(categoryElement.value);
+          // console.log(categoryElement.value);
           $.post("getSubcategories.php", {
             category: categoryElement.value,
           }).done(function (data) {
-            console.log(data);
+            // console.log(data);
             getSubcategories(data);
           });
 
@@ -53,11 +55,11 @@
 
           function onChangeSubCategories() {
             productElement.removeAttribute("disabled");
-            console.log(subcategoryElement.value);
+            // console.log(subcategoryElement.value);
             $.get("getProducts.php", {
               subcategory: subcategoryElement.value,
             }).done(function (data) {
-              console.log(data);
+              // console.log(data);
               getProducts(data);
             }, "json");
 
@@ -75,7 +77,7 @@
         }
       }
       // Loop over them and prevent submission
-      var validation = Array.prototype.filter.call(forms, function (form) {
+      const validation = Array.prototype.filter.call(forms, function (form) {
         form.addEventListener(
           "submit",
           function (event) {
@@ -84,28 +86,78 @@
               event.stopPropagation();
             } else {
               event.preventDefault();
-              // console.log(1);
+              checkScore();
               form.classList.add("was-validated");
-              $.post("postOffer.php", {
-                store: store,
-                price: priceElement.value,
-                product: productElement.value,
-              }).done(function (data) {
-                console.log(data);
-                location.reload(true);
-              });
             }
           },
           false
         );
       });
+
+      function checkScore() {
+        let points = 0;
+        let weeklyAvaragePrice = 0;
+        let dayAvaragePrice = 0;
+        let overAllFlag = false;
+        $.post("getPrices.php", {
+          store: store,
+          price: priceElement.value,
+          product: productElement.value,
+          date: currentdate,
+        }).done(function (data) {
+          data[0].map((data) => {
+            weeklyAvaragePrice = weeklyAvaragePrice + parseFloat(data.price);
+          });
+          weeklyAvaragePrice = weeklyAvaragePrice / data[0].length;
+          dayAvaragePrice = data[0][data[0].length - 1].price;
+
+          if (priceElement.value <= dayAvaragePrice - dayAvaragePrice * 0.2) {
+            points = 50;
+          } else if (
+            priceElement.value <
+            weeklyAvaragePrice - weeklyAvaragePrice * 0.2
+          ) {
+            points = 20;
+          } else {
+            points = 0;
+          }
+          let result = data[1].filter((data) => {
+            return data
+              ? data.product_id == productElement.value &&
+                  data.store_id == store
+              : null;
+          });
+          overAllFlag = result.length && !(priceElement.value < (result.price - result.price * 0.2))
+
+          console.log(overAllFlag);
+
+          if (overAllFlag) {
+            $.post("uploadOffer.php", {
+              store: store,
+              price: priceElement.value,
+              product: productElement.value,
+              points: points,
+            }).done(function (data) {
+              // console.log(data);
+              location.reload(true);
+            });
+            console.log("success");
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "Δεν μπορείς να υποβάλεις την ίδια προσθορά 2 φορές",
+            });
+          }
+        });
+      }
     },
     false
   );
 })();
 
 function empty(element) {
-  for (let i = 0; i < element.length; i++) {
-    if (element.options[i].value !== "") element.remove(i);
-  }
+  // for (let i = 0; i < element.length; i++) {
+  //   if (element.options[i].value !== "") element.remove(i);
+  // }
+  $(`#${element}`).empty();
 }

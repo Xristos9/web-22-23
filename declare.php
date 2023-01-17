@@ -56,7 +56,7 @@
 
             <div class="form-group pt-3">
               <label for="inputPrice">Price</label>
-              <input type="number" class="form-control" id="inputPrice" name="price" placeholder="Enter Price" required />
+              <input type="number" min='0' class="form-control" id="inputPrice" name="price" step="any" placeholder="Enter Price" required />
             </div>
             <div class="form-group pt-5">
               <button class="btn btn-primary btn-block col-lg-2" type="submit">Submit</button>

@@ -15,12 +15,6 @@
 				<li class="nav-item">
 					<a href="map.php" class="nav-link">Home</a>
 				</li>
-				<!-- <li class="nav-item">
-					<a href="visit.php" class="nav-link">What store did you visit</a>
-				</li> -->
-				<li class="nav-item">
-					<a href="declare.php" class="nav-link">Declare Discount</a>
-				</li>
 				<li class="nav-item">
 					<a href="info.php" class="nav-link">Account info</a>
 				</li>
