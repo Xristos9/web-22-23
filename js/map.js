@@ -1,4 +1,8 @@
 window.onload = function () {
+  $("#nav-placeholder").load("navbar.html");
+  $("#nav-placeholder-admin").load("adminNavbar.html");
+  $("#footer-placeholder").load("footer.html");
+
   const storeElement = $("#storeSelect");
   const categoryElement = $("#categorySelect");
   const storeButton = $("#searchStore");
@@ -81,7 +85,7 @@ window.onload = function () {
 
     // emfanisi katastimaton me prosfores
     const discountAjax = $.ajax({
-      url: "getMapMarkerInfo.php",
+      url: "./php/getMapMarkerInfo.php",
       method: "GET",
       dataType: "json",
       success: function (data) {
@@ -94,7 +98,7 @@ window.onload = function () {
     function markers(res) {
       res.map((store) => {
         const container = $("<div />");
-        marker = L.marker([store.lat, store.lon], { icon: orange });
+        let marker = L.marker([store.lat, store.lon], { icon: orange });
         stores.addLayer(marker);
         if (
           getDistance(
@@ -115,7 +119,7 @@ window.onload = function () {
         container.on("click", ".showOffer", function () {
           let params = new URLSearchParams();
           params.append("discount_id", store.discount_id);
-          let url = "discountsPage.php?" + params.toString();
+          let url = "./discountsPage.html?" + params.toString();
           location.href = url;
           window.open(url);
         });
@@ -124,7 +128,7 @@ window.onload = function () {
           let params = new URLSearchParams();
           params.append("store", store.id);
 
-          let url = "declare.php?" + params.toString();
+          let url = "./declare.html?" + params.toString();
           location.href = url;
           window.open(url);
         });
@@ -136,7 +140,7 @@ window.onload = function () {
 
   // arxi store dropdown
   const storesAjax = $.ajax({
-    url: "getStoreNames.php",
+    url: "./php/getStoreNames.php",
     method: "POST",
     dataType: "json",
     success: function (data) {
@@ -178,7 +182,7 @@ window.onload = function () {
 
   // arxi offer dropdown
   const categoryAjax = $.ajax({
-    url: "getCategories.php",
+    url: "./php/getCategories.php",
     method: "POST",
     dataType: "json",
     success: function (data) {
@@ -200,7 +204,7 @@ window.onload = function () {
         alert("Please select");
       }
       const storeOfferAjax = $.ajax({
-        url: "getStoreOffer.php",
+        url: "./php/getStoreOffer.php",
         method: "POST",
         dataType: "json",
         data: { input: categoryElement.val() },
@@ -213,7 +217,6 @@ window.onload = function () {
 
       function categoryOffers(result) {
         resetMarkers(stores);
-
         result.map((offer) => {
           // console.log(offer);
           let container = $("<div />");
@@ -225,7 +228,7 @@ window.onload = function () {
           container.on("click", ".showOffer", function () {
             let params = new URLSearchParams();
             params.append("discount_id", offer.discount_id);
-            let url = "discountsPage.php?" + params.toString();
+            let url = "./discountsPage.html?" + params.toString();
             location.href = url;
             window.open(url);
           });
@@ -234,7 +237,7 @@ window.onload = function () {
             let params = new URLSearchParams();
             params.append("store", offer.store_id);
 
-            let url = "declare.php?" + params.toString();
+            let url = "./declare.html?" + params.toString();
             location.href = url;
             window.open(url);
           });

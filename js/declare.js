@@ -1,8 +1,14 @@
+// import { test } from "../php/";
+
 (function () {
   "use strict";
   window.addEventListener(
     "load",
     function () {
+      // console.log(test);
+      $("#nav-placeholder").load("navbar.html");
+      $("#footer-placeholder").load("footer.html");
+
       const currentdate = new Date().toISOString().slice(0, 10);
 
       const categoryElement = document.getElementById("inputCategory");
@@ -14,7 +20,7 @@
       const params = new URLSearchParams(window.location.search),
         store = params.get("store");
       // console.log(store);
-      $.post("getCategories.php").done(function (data) {
+      $.post("./php/getCategories.php").done(function (data) {
         // console.log(data);
         getCategories(data);
       }, "json");
@@ -33,10 +39,10 @@
           subcategoryElement.removeAttribute("disabled");
 
           // console.log(categoryElement.value);
-          $.post("getSubcategories.php", {
+          $.post("./php/getSubcategories.php", {
             category: categoryElement.value,
           }).done(function (data) {
-            // console.log(data);
+            console.log(data);
             getSubcategories(data);
           });
 
@@ -56,7 +62,7 @@
           function onChangeSubCategories() {
             productElement.removeAttribute("disabled");
             // console.log(subcategoryElement.value);
-            $.get("getProducts.php", {
+            $.get("./php/getProducts.php", {
               subcategory: subcategoryElement.value,
             }).done(function (data) {
               // console.log(data);
@@ -99,7 +105,7 @@
         let weeklyAvaragePrice = 0;
         let dayAvaragePrice = 0;
         let overAllFlag = false;
-        $.post("getPrices.php", {
+        $.post("./php/getPrices.php", {
           store: store,
           price: priceElement.value,
           product: productElement.value,
@@ -127,12 +133,14 @@
                   data.store_id == store
               : null;
           });
-          overAllFlag = result.length && !(priceElement.value < (result.price - result.price * 0.2))
+          overAllFlag =
+            result.length &&
+            !(priceElement.value < result.price - result.price * 0.2);
 
           console.log(overAllFlag);
 
           if (overAllFlag) {
-            $.post("uploadOffer.php", {
+            $.post("./php/uploadOffer.php", {
               store: store,
               price: priceElement.value,
               product: productElement.value,
@@ -156,8 +164,8 @@
 })();
 
 function empty(element) {
-  // for (let i = 0; i < element.length; i++) {
-  //   if (element.options[i].value !== "") element.remove(i);
-  // }
-  $(`#${element}`).empty();
+  for (let i = 0; i < element.length; i++) {
+    if (element.options[i].value !== "") element.remove(i);
+  }
+  // $(`#${element}`).empty();
 }

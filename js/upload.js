@@ -1,3 +1,6 @@
+$("#nav-placeholder-admin").load("adminNavbar.html");
+$("#footer-placeholder").load("footer.html");
+
 function storesUpload(input) {
   const file = new FileReader();
   file.readAsText(input.files[0]);
@@ -27,7 +30,7 @@ function storesUpload(input) {
           showConfirmButton: false,
         });
         $.ajax({
-          url: "uploadStores.php",
+          url: "./php/uploadStores.php",
           type: "POST",
           // dataType: 'json',
           data: { data: JSON.stringify(upload) },
@@ -89,7 +92,7 @@ function categoriesProductsUpload(input) {
           showConfirmButton: false,
         });
         $.ajax({
-          url: "uploadCategoriesProducts.php",
+          url: "./php/uploadCategoriesProducts.php",
           type: "POST",
           // dataType: 'json',
           data: {
@@ -127,7 +130,7 @@ function pricesUpload(input) {
     console.log(data);
 
     const ajax = $.ajax({
-      url: "getProducts.php",
+      url: "./php/getProducts.php",
       method: "GET",
       dataType: "json",
       data: { subcategory: 1 },
@@ -164,7 +167,7 @@ function pricesUpload(input) {
             showConfirmButton: false,
           });
           $.ajax({
-            url: "uploadPrices.php",
+            url: "./php/uploadPrices.php",
             type: "POST",
             // dataType: 'json',
             data: { data: JSON.stringify(upload) },
