@@ -7,7 +7,7 @@ $store = $_POST['store'];
 $price = $_POST['price'];
 $product = $_POST['product'];
 $points = $_POST['points'];
-$user_id = 6;
+$user_id = $_SESSION['user_id'];
 $score = 0;
 
 $query = mysqli_query($link, "SELECT `score` FROM `users` WHERE `user_id`= '$user_id'");
@@ -24,4 +24,3 @@ if (mysqli_query($link, $query3)) {
 } else {
   echo "Error: " . $query . mysqli_error($link);
 }
-

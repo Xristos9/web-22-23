@@ -1,12 +1,15 @@
-// import { test } from "../php/";
-
 (function () {
   "use strict";
   window.addEventListener(
     "load",
     function () {
-      // console.log(test);
-      $("#nav-placeholder").load("navbar.html");
+      const logged_user = JSON.parse(localStorage.getItem("logged_user"));
+      // console.log(logged_user);
+      if (logged_user[0].isAdmin === "0") {
+        $("#nav-placeholder").load("navbar.html");
+      } else {
+        $("#nav-placeholder").load("adminNavbar.html");
+      }
       $("#footer-placeholder").load("footer.html");
 
       const currentdate = new Date().toISOString().slice(0, 10);
@@ -19,7 +22,7 @@
       const forms = document.getElementsByClassName("needs-validation");
       const params = new URLSearchParams(window.location.search),
         store = params.get("store");
-      // console.log(store);
+      console.log(store);
       $.post("./php/getCategories.php").done(function (data) {
         // console.log(data);
         getCategories(data);
@@ -104,40 +107,44 @@
         let points = 0;
         let weeklyAvaragePrice = 0;
         let dayAvaragePrice = 0;
-        let overAllFlag = false;
+        let overAllFlag = true;
         $.post("./php/getPrices.php", {
           store: store,
           price: priceElement.value,
           product: productElement.value,
           date: currentdate,
         }).done(function (data) {
-          data[0].map((data) => {
-            weeklyAvaragePrice = weeklyAvaragePrice + parseFloat(data.price);
-          });
-          weeklyAvaragePrice = weeklyAvaragePrice / data[0].length;
-          dayAvaragePrice = data[0][data[0].length - 1].price;
+          if (data[0].length) {
+            data[0].map((data) => {
+              weeklyAvaragePrice = weeklyAvaragePrice + parseFloat(data.price);
+            });
+            weeklyAvaragePrice = weeklyAvaragePrice / data[0].length;
+            dayAvaragePrice = data[0][data[0].length - 1].price;
 
-          if (priceElement.value <= dayAvaragePrice - dayAvaragePrice * 0.2) {
-            points = 50;
-          } else if (
-            priceElement.value <
-            weeklyAvaragePrice - weeklyAvaragePrice * 0.2
-          ) {
-            points = 20;
-          } else {
-            points = 0;
+            if (priceElement.value <= dayAvaragePrice - dayAvaragePrice * 0.2) {
+              points = 50;
+            } else if (
+              priceElement.value <
+              weeklyAvaragePrice - weeklyAvaragePrice * 0.2
+            ) {
+              points = 20;
+            } else {
+              points = 0;
+            }
           }
-          let result = data[1].filter((data) => {
-            return data
-              ? data.product_id == productElement.value &&
-                  data.store_id == store
-              : null;
-          });
-          overAllFlag =
-            result.length &&
-            !(priceElement.value < result.price - result.price * 0.2);
+          if (data[1].length) {
+            let result = data[1].filter((data) => {
+              return data
+                ? data.product_id == productElement.value &&
+                    data.store_id == store
+                : null;
+            });
+            overAllFlag =
+              !result.length &&
+              !(priceElement.value < result.price - result.price * 0.2);
 
-          console.log(overAllFlag);
+            console.log(overAllFlag);
+          }
 
           if (overAllFlag) {
             $.post("./php/uploadOffer.php", {

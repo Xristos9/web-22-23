@@ -1,7 +1,8 @@
 $("#nav-placeholder-admin").load("adminNavbar.html");
 $("#footer-placeholder").load("footer.html");
 
-function storesUpload(input) {
+const storesUpload = (input) => {
+  // function storesUpload(input) {
   const file = new FileReader();
   file.readAsText(input.files[0]);
 
@@ -53,7 +54,7 @@ function storesUpload(input) {
   file.onerror = function () {
     console.log(reader.error);
   };
-}
+};
 
 function categoriesProductsUpload(input) {
   const file = new FileReader();

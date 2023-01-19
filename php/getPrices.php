@@ -2,10 +2,12 @@
 include "connector.php";
 session_start();
 
-// $product_id= $_POST['product_id'];
-$date= $_POST['date'];
-$product_id = 840;
-$user_id = 6;
+
+$product_id = $_POST['product'];
+$date = $_POST['date'];
+$user_id = $_SESSION['user_id'];
+// echo $user_id;
+// $product_id = 840;
 
 $result = array();
 $array = array();

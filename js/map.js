@@ -1,18 +1,17 @@
 window.onload = function () {
-  $("#nav-placeholder").load("navbar.html");
-  $("#nav-placeholder-admin").load("adminNavbar.html");
+  const logged_user = JSON.parse(localStorage.getItem("logged_user"));
+  // console.log(logged_user);
+  if (logged_user[0].isAdmin === "0") {
+    $("#nav-placeholder").load("navbar.html");
+  } else {
+    $("#nav-placeholder").load("adminNavbar.html");
+  }
   $("#footer-placeholder").load("footer.html");
 
   const storeElement = $("#storeSelect");
   const categoryElement = $("#categorySelect");
   const storeButton = $("#searchStore");
   const categoryButton = $("#searchCategory");
-
-  function resetMarkers(label) {
-    map.removeLayer(label);
-    lable = new L.layerGroup();
-    map.addLayer(label);
-  }
 
   // eisagwgi xarti
   var baseLayer = L.tileLayer(
@@ -47,7 +46,10 @@ window.onload = function () {
   function showError(error) {
     switch (error.code) {
       case error.PERMISSION_DENIED:
-        alert("User denied the request for Geolocation.");
+        Swal.fire({
+          icon: "error",
+          title: "Geolocation is not supported by this browser!",
+        });
         break;
       case error.POSITION_UNAVAILABLE:
         alert("Location information is unavailable.");
@@ -72,7 +74,8 @@ window.onload = function () {
     iconSize: [38, 38],
     // iconAnchor: [20, 0],
   });
-
+  let markerdata = [];
+  let markers = {};
   function showMarker(position) {
     // eisagwgi tis topothesias to xristi
     let ClLock = L.marker([
@@ -93,13 +96,14 @@ window.onload = function () {
       },
     });
 
-    discountAjax.done(markers);
+    discountAjax.done(markersff);
 
-    function markers(res) {
-      res.map((store) => {
+    function markersff(res) {
+      res.map((store, index) => {
+        markerdata.push(index);
         const container = $("<div />");
-        let marker = L.marker([store.lat, store.lon], { icon: orange });
-        stores.addLayer(marker);
+        markers[index] = L.marker([store.lat, store.lon], { icon: orange });
+        // stores.addLayer(marker);
         if (
           getDistance(
             position.coords.latitude,
@@ -132,9 +136,11 @@ window.onload = function () {
           location.href = url;
           window.open(url);
         });
-        marker.bindPopup(container[0]);
-        stores.addLayer(marker);
+        markers[index].bindPopup(container[0]);
+        markers[index].addTo(map);
+        // stores.addLayer(marker);
       });
+      console.log(markers);
     }
   } // telos markers prosforon
 
@@ -160,22 +166,38 @@ window.onload = function () {
 
     storeButton.click(function () {
       if (storeElement.val() === "") {
-        alert("Please select");
+        Swal.fire({
+          icon: "error",
+          title: "Please select a store",
+        });
       } else {
         let selectedStore = result.find(
           (store) => store.store_id === storeElement.val()
         );
         let container = $("<div />");
-        marker = L.marker([selectedStore.lat, selectedStore.lon], {
-          icon: blue,
-        });
-        stores.addLayer(marker);
+        markers[markerdata.length] = L.marker(
+          [selectedStore.lat, selectedStore.lon],
+          {
+            icon: blue,
+          }
+        );
         container.html(
           `<lable class="form-label">Name: ${selectedStore.store_name}</lable><br><br><button class="btn btn-primary btn-sm submitOffer">Προσθήκη προσφοράς</button>`
         );
-        marker.bindPopup(container[0]);
-        stores.addLayer(marker);
+        container.on("click", ".submitOffer", function () {
+          // URL PARAMETERS
+          // console.log(selectedStore);
+          let params = new URLSearchParams();
+          params.append("store", selectedStore.store_id);
+
+          let url = "./declare.html?" + params.toString();
+          location.href = url;
+          window.open(url);
+        });
+        markers[markerdata.length].bindPopup(container[0]);
+        markers[markerdata.length].addTo(map);
         map.setView([selectedStore.lat, selectedStore.lon], 18);
+        markerdata[markerdata.length] = markerdata.length;
       }
     });
   } // telos store dropdown
@@ -199,9 +221,20 @@ window.onload = function () {
     });
     categoryElement.selectpicker("refresh");
     categoryButton.click(function () {
-      // console.log(categoryElement.val());
       if (categoryElement.val() === "") {
-        alert("Please select");
+        Swal.fire({
+          icon: "error",
+          title: "Please select a Category",
+        });
+      } else {
+        for (let i = 0; i < markerdata.length; i++) {
+          let id = markerdata[i],
+            marker = markers[id];
+          latLng = marker.getLatLng();
+          map.removeLayer(marker);
+        }
+        console.log(markerdata);
+        markerdata = [];
       }
       const storeOfferAjax = $.ajax({
         url: "./php/getStoreOffer.php",
@@ -209,19 +242,18 @@ window.onload = function () {
         dataType: "json",
         data: { input: categoryElement.val() },
         success: function (data) {
-          // console.log(data);
+          console.log(data);
         },
       });
 
       storeOfferAjax.done(categoryOffers);
 
       function categoryOffers(result) {
-        resetMarkers(stores);
-        result.map((offer) => {
+        result.map((offer, index) => {
           // console.log(offer);
+          markerdata.push(index);
           let container = $("<div />");
-          marker = L.marker([offer.lat, offer.lon], { icon: orange });
-          stores.addLayer(marker);
+          markers[index] = L.marker([offer.lat, offer.lon], { icon: orange });
           container.html(
             `<lable class="form-label">Name: ${offer.store_name}</lable><br><br><button class="btn btn-primary btn-sm showOffer">Προβολή προσφορών</button><br><br><button class="btn btn-primary btn-sm submitOffer">Προσθήκη προσφοράς</button>`
           );
@@ -241,8 +273,8 @@ window.onload = function () {
             location.href = url;
             window.open(url);
           });
-          marker.bindPopup(container[0]);
-          stores.addLayer(marker);
+          markers[index].bindPopup(container[0]);
+          markers[index].addTo(map);
         });
       }
     });
