@@ -12,8 +12,6 @@
       }
       $("#footer-placeholder").load("footer.html");
 
-      const currentdate = new Date().toISOString().slice(0, 10);
-
       const categoryElement = document.getElementById("inputCategory");
       const subcategoryElement = document.getElementById("inputSubcategory");
       const productElement = document.getElementById("inputProduct");
@@ -112,7 +110,6 @@
           store: store,
           price: priceElement.value,
           product: productElement.value,
-          date: currentdate,
         }).done(function (data) {
           if (data[0].length) {
             data[0].map((data) => {
@@ -171,8 +168,5 @@
 })();
 
 function empty(element) {
-  for (let i = 0; i < element.length; i++) {
-    if (element.options[i].value !== "") element.remove(i);
-  }
-  // $(`#${element}`).empty();
+  element.options.length = 0;
 }

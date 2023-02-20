@@ -55,5 +55,5 @@ const updateUsers = () => {
 };
 // updateUsers();
 
-// setInterval(dayCheck, 86400000);
+setInterval(dayCheck, 86400000);
 // setInterval(dayCheck, 30000);
